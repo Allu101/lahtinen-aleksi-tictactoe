@@ -6,9 +6,12 @@ public class Game {
     private int winRowLength;
     private String[][] gameBoard;
 
+    private TicTacToePlayer opponent;
+
     public Game() {
         initialGame();
         startGame();
+        opponent = new RandomAiOpponent();
     }
 
     private int getUserInput(String message) {
@@ -30,7 +33,7 @@ public class Game {
     private void initialGame() {
         int boardSize = Math.max(getUserInput("Give a game board size: "), 3);
         gameBoard = new String[boardSize+2][boardSize+2];
-        int winRowRawLength = getUserInput("How many chars must be a win row?");
+        int winRowRawLength = getUserInput("How long the win row should be are?");
         winRowLength = Math.min(boardSize >= 10 ? Math.max(winRowRawLength, 5) : Math.max(winRowRawLength, 3), boardSize);
     }
 
@@ -49,6 +52,14 @@ public class Game {
         }
     }
 
+    public boolean setMarkToGameBoard(String mark, int xLoc, int yLoc) {
+        if (gameBoard[yLoc][xLoc].isBlank()) {
+            gameBoard[yLoc][xLoc] = mark;
+            return true;
+        }
+        return false;
+    }
+
     private void startGame() {
         boolean isGameOn = true;
         boolean playerTurn = true;
@@ -57,8 +68,9 @@ public class Game {
             if (playerTurn) {
 
             } else {
-
+                opponent.play();
             }
+            opponent.onPlayerTurnEnd(gameBoard);
             playerTurn = !playerTurn;
         }
         
