@@ -18,6 +18,9 @@ public class RandomAiOpponent implements TicTacToePlayer {
 
     @Override
     public void onPlayerTurnEnd(int latestChangedRow, int latestChangedColumn) {
+        if (freeSlots.length <= 1) {
+            return;
+        }
         int tempIndex = 0;
         int[] tempFreeSlots = new int[freeSlots.length - 1];
         for (int i = 0; i < freeSlots.length; i++) {
@@ -25,10 +28,6 @@ public class RandomAiOpponent implements TicTacToePlayer {
                 tempFreeSlots[tempIndex] = freeSlots[i];
             }
         }
-        for (int i = 0; i < freeSlots.length; i++) {
-            System.out.print(freeSlots[i] + " ");
-        }
-        System.out.println();
         freeSlots = tempFreeSlots;
         recreateFreeSlotsList();
     }

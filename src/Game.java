@@ -1,5 +1,6 @@
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.WindowEvent;
 import java.io.Console;
 import java.lang.Math;
 
@@ -19,7 +20,6 @@ public class Game extends JFrame {
     public Game() {
         initialGame();
         initialJFrame();
-
         opponent = new RandomAiOpponent(gameBoard, this);
     }
 
@@ -40,6 +40,22 @@ public class Game extends JFrame {
         if (!playerXTurn) {
             opponent.play();
             playerXTurn = true;
+        }
+        checkPossibleWinOrDraw();
+    }
+
+    private void checkPossibleWinOrDraw() {
+        int emptySlots = 0;
+        for (int row = 0; row < gameBoard.length; row++) {
+            for (int column = 0; column < gameBoard.length; column++) {
+                if (gameBoard[row][column] == null) {
+                    emptySlots++;
+                }
+            }
+        }
+        if (emptySlots == 0) {
+            this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+            System.out.println("Draw Game!");
         }
     }
 
@@ -80,9 +96,7 @@ public class Game extends JFrame {
                 String slotNumberAndCoords = TicTacToe.getSlotNumber(boardSize, row, column)  + ";" + row + ";" + column;
                 button.setName(slotNumberAndCoords);
                 button.setFont(new Font("Arial", Font.PLAIN, 50));
-                button.addActionListener(e -> {
-                    handleClick(button);
-                });
+                button.addActionListener(e -> handleClick(button));
                 add(button);
                 buttons[Integer.parseInt(slotNumberAndCoords.split(";")[0])] = button;
             }
