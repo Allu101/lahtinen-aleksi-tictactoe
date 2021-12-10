@@ -1,8 +1,15 @@
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.io.Console;
 import java.lang.Math;
 
-public class Game {
+import javax.swing.JButton;
+import javax.swing.JFrame;
+
+public class Game extends JFrame {
     
+    private boolean playerXTurn = true;
+    private int boardSize;
     private int winRowLength;
     private String[][] gameBoard;
 
@@ -10,8 +17,27 @@ public class Game {
 
     public Game() {
         initialGame();
-        startGame();
+        initialJFrame();
+
         opponent = new RandomAiOpponent();
+        startGame();
+    }
+
+    public boolean setMarkToGameBoard(String mark, int xLoc, int yLoc) {
+        if (gameBoard[yLoc][xLoc].isBlank()) {
+            gameBoard[yLoc][xLoc] = mark;
+            return true;
+        }
+        return false;
+    }
+
+    public void handleClick(JButton clickedButton) {
+        clickedButton.setText(playerXTurn ? "X" : "0");
+        clickedButton.setEnabled(false);
+        String[] array = clickedButton.getName().split(";");
+        gameBoard[Integer.parseInt(array[0])][Integer.parseInt(array[1])] = playerXTurn ? "X" : "0";
+        opponent.onPlayerTurnEnd(gameBoard);
+        playerXTurn = !playerXTurn;
     }
 
     private int getUserInput(String message) {
@@ -31,48 +57,39 @@ public class Game {
     }
 
     private void initialGame() {
-        int boardSize = Math.max(getUserInput("Give a game board size: "), 3);
-        gameBoard = new String[boardSize+2][boardSize+2];
-        int winRowRawLength = getUserInput("How long the win row should be are?");
+        boardSize = Math.max(getUserInput("Give a game board size: "), 3);
+        gameBoard = new String[boardSize][boardSize];
+        int winRowRawLength = getUserInput("How much marks must be a row to win?: ");
         winRowLength = Math.min(boardSize >= 10 ? Math.max(winRowRawLength, 5) : Math.max(winRowRawLength, 3), boardSize);
     }
 
-    public void printGameBoard() {
-        for (int i = 0; i < gameBoard.length; i++) {
-            for (int j = 0; j < gameBoard.length; j++) {
-                if (i == 0 || j == 0 || i == gameBoard.length -1 || j == gameBoard.length -1) {
-                    System.out.print("x");
-                } else if (gameBoard[i][j] == null) {
-                    System.out.print(" ");
-                } else {
-                    System.out.print(gameBoard[i][j]);
-                }
-            }
-            System.out.println();
-        }
-    }
+    private void initialJFrame() {
+        setTitle("Tic Tac Toe");
+        setSize(600, 600);
+        setVisible(true);
 
-    public boolean setMarkToGameBoard(String mark, int xLoc, int yLoc) {
-        if (gameBoard[yLoc][xLoc].isBlank()) {
-            gameBoard[yLoc][xLoc] = mark;
-            return true;
+        GridLayout grid = new GridLayout(boardSize, boardSize);
+        setLayout(grid);
+        for (int i = 0; i < boardSize; i++) {
+            for (int j = 0; j < boardSize; j++) {
+                JButton b = new JButton();
+                String coordinates = i + ";" + j;
+                b.addActionListener(e -> {
+                    b.setName(coordinates);
+                    b.setFont(new Font("Arial", Font.PLAIN, 50));
+                    handleClick(b);
+                });
+                add(b);
+            }
         }
-        return false;
     }
 
     private void startGame() {
         boolean isGameOn = true;
-        boolean playerTurn = true;
         while (isGameOn) {
-            printGameBoard();
-            if (playerTurn) {
-
-            } else {
+            if (!playerXTurn) {
                 opponent.play();
             }
-            opponent.onPlayerTurnEnd(gameBoard);
-            playerTurn = !playerTurn;
         }
-        
     }
 }
