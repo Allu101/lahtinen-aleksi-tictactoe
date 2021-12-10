@@ -11,6 +11,7 @@ public class Game extends JFrame {
     private boolean playerXTurn = true;
     private int boardSize;
     private int winRowLength;
+    private JButton[] buttons;
     private String[][] gameBoard;
 
     private TicTacToePlayer opponent;
@@ -19,25 +20,27 @@ public class Game extends JFrame {
         initialGame();
         initialJFrame();
 
-        opponent = new RandomAiOpponent();
-        startGame();
+        opponent = new RandomAiOpponent(gameBoard, this);
     }
 
-    public boolean setMarkToGameBoard(String mark, int xLoc, int yLoc) {
-        if (gameBoard[yLoc][xLoc].isBlank()) {
-            gameBoard[yLoc][xLoc] = mark;
-            return true;
-        }
-        return false;
+    public void handleClick(int slotNumber) {
+        handleClick(buttons[slotNumber]);
     }
 
     public void handleClick(JButton clickedButton) {
-        clickedButton.setText(playerXTurn ? "X" : "0");
+        String currentMark = playerXTurn ? "X" : "0";
+        clickedButton.setText(currentMark);
         clickedButton.setEnabled(false);
         String[] array = clickedButton.getName().split(";");
-        gameBoard[Integer.parseInt(array[0])][Integer.parseInt(array[1])] = playerXTurn ? "X" : "0";
-        opponent.onPlayerTurnEnd(gameBoard);
+        int row = Integer.parseInt(array[1]);
+        int column = Integer.parseInt(array[2]);
+        setMarkToGameBoard(currentMark, row, column);
+        
         playerXTurn = !playerXTurn;
+        if (!playerXTurn) {
+            opponent.play();
+            playerXTurn = true;
+        }
     }
 
     private int getUserInput(String message) {
@@ -67,29 +70,27 @@ public class Game extends JFrame {
         setTitle("Tic Tac Toe");
         setSize(600, 600);
         setVisible(true);
+        buttons = new JButton[boardSize*boardSize];
 
         GridLayout grid = new GridLayout(boardSize, boardSize);
         setLayout(grid);
-        for (int i = 0; i < boardSize; i++) {
-            for (int j = 0; j < boardSize; j++) {
-                JButton b = new JButton();
-                String coordinates = i + ";" + j;
-                b.addActionListener(e -> {
-                    b.setName(coordinates);
-                    b.setFont(new Font("Arial", Font.PLAIN, 50));
-                    handleClick(b);
+        for (int row = 0; row < boardSize; row++) {
+            for (int column = 0; column < boardSize; column++) {
+                JButton button = new JButton();
+                String slotNumberAndCoords = TicTacToe.getSlotNumber(boardSize, row, column)  + ";" + row + ";" + column;
+                button.setName(slotNumberAndCoords);
+                button.setFont(new Font("Arial", Font.PLAIN, 50));
+                button.addActionListener(e -> {
+                    handleClick(button);
                 });
-                add(b);
+                add(button);
+                buttons[Integer.parseInt(slotNumberAndCoords.split(";")[0])] = button;
             }
         }
     }
 
-    private void startGame() {
-        boolean isGameOn = true;
-        while (isGameOn) {
-            if (!playerXTurn) {
-                opponent.play();
-            }
-        }
+    private void setMarkToGameBoard(String mark, int row, int column) {
+        gameBoard[row][column] = mark;
+        opponent.onPlayerTurnEnd(row, column);
     }
 }

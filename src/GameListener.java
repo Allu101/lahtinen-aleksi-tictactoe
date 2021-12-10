@@ -1,4 +1,4 @@
 public interface GameListener {
 
-    public void onPlayerTurnEnd(String[][] gameBoard);
+    public void onPlayerTurnEnd(int latestChangedRow, int latestChangedColumn);
 }
