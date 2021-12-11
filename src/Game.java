@@ -2,7 +2,6 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.WindowEvent;
 import java.io.Console;
-import java.lang.Math;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -120,7 +119,7 @@ public class Game extends JFrame {
         }
     }
 
-    private int getUserInput(String message) {
+    private int getUserInput(String message, int min, int max) {
         Console console = System.console();
         int input = 0;
         boolean validInput = false;
@@ -128,7 +127,11 @@ public class Game extends JFrame {
             System.out.print(message);
             try {
                 input = Integer.parseInt(console.readLine());
-                validInput = true;
+                if (input >= min && input <= max) {
+                    validInput = true;
+                } else {
+                    System.out.println("Please give number between [" + min + "-" + max + "]");
+                }
             } catch (Exception e) {
                 System.out.println("Please give a number");
             }
@@ -137,16 +140,14 @@ public class Game extends JFrame {
     }
 
     private void initialGame() {
-        boardSize = Math.max(getUserInput("Give a game board size: "), 3);
+        boardSize = getUserInput("Give a game board size: ", 3, 15);
         gameBoard = new String[boardSize][boardSize];
-        int winRowRawLength = getUserInput("How much marks must be a row to win?: ");
-        winRowLength = Math.min(boardSize >= 10 ? Math.max(winRowRawLength, 5) : Math.max(winRowRawLength, 3), boardSize);
+        winRowLength = getUserInput("How much marks must be a row to win?: ", boardSize >= 10 ? 5 : 3, boardSize);
     }
 
     private void initialJFrame() {
         setTitle("Tic Tac Toe");
         setSize(600, 600);
-        setVisible(true);
         buttons = new JButton[boardSize*boardSize];
 
         GridLayout grid = new GridLayout(boardSize, boardSize);
@@ -162,6 +163,7 @@ public class Game extends JFrame {
                 buttons[Integer.parseInt(slotNumberAndCoords.split(";")[0])] = button;
             }
         }
+        setVisible(true);
     }
 
     private void setMarkToGameBoard(String mark, int row, int column) {
