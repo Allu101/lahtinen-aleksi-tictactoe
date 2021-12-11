@@ -9,6 +9,10 @@ import javax.swing.JFrame;
 
 public class Game extends JFrame {
     
+    private final static String O  ="0";
+    private final static String X  ="X";
+
+    private boolean isGameOn = true;
     private boolean playerXTurn = true;
     private int boardSize;
     private int winRowLength;
@@ -28,7 +32,7 @@ public class Game extends JFrame {
     }
 
     public void handleClick(JButton clickedButton) {
-        String currentMark = playerXTurn ? "X" : "0";
+        String currentMark = playerXTurn ? X : O;
         clickedButton.setText(currentMark);
         clickedButton.setEnabled(false);
         String[] array = clickedButton.getName().split(";");
@@ -36,15 +40,63 @@ public class Game extends JFrame {
         int column = Integer.parseInt(array[2]);
         setMarkToGameBoard(currentMark, row, column);
         
+        checkPossibleWinOrDraw(row, column);
         playerXTurn = !playerXTurn;
-        if (!playerXTurn) {
+        if (!playerXTurn && isGameOn) {
             opponent.play();
             playerXTurn = true;
         }
-        checkPossibleWinOrDraw();
     }
 
-    private void checkPossibleWinOrDraw() {
+    private int getSameMarkRowLength(int latestTurnRow, int latestTurnColumn, String mark, int mode) {
+        int rowLength = 0;
+        int startRow = mode > 2 ? latestTurnRow : latestTurnRow - winRowLength + 1 < 0 ? 0
+            : latestTurnRow - winRowLength + 1;
+        int startColumn = mode > 2 ? latestTurnColumn : latestTurnColumn - winRowLength + 1 < 0 ? 0
+            : latestTurnColumn - winRowLength + 1;
+        int endIndex = winRowLength * 2 - 1;
+        int[] currentLoc = new int[]{startRow, startColumn};
+
+        while (mode == 3 && currentLoc[0] -1 >= 0 && currentLoc[1] -1 >= 0) {
+            currentLoc[0] = currentLoc[0] - 1;
+            currentLoc[1] = currentLoc[1] - 1;
+        }
+        while (mode == 4 && currentLoc[0] -1 >= 0 && currentLoc[1] +1 < boardSize) {
+            currentLoc[0] = currentLoc[0] - 1;
+            currentLoc[1] = currentLoc[1] + 1;
+        }
+
+        if (mode == 1) {
+            currentLoc[0] = latestTurnRow;
+        } else if (mode == 2) {
+            currentLoc[1] = latestTurnColumn;
+        }
+        for (int i = 0; i < endIndex; i++) {
+            if ((currentLoc[0] >= boardSize || currentLoc[1] >= boardSize) || currentLoc[0] < 0 || currentLoc[1] < 0) {
+                break;
+            }
+            if (gameBoard[currentLoc[0]][currentLoc[1]] == null || !gameBoard[currentLoc[0]][currentLoc[1]].equals(mark)) {
+                rowLength = 0;
+            } else {
+                rowLength++;
+                if (rowLength >= winRowLength) {
+                    return rowLength;
+                }
+            }
+            if (mode == 1 || mode == 3) {
+                currentLoc[1] = currentLoc[1] + 1;
+            }
+            if (mode == 2 || mode == 3 || mode == 4) {
+                currentLoc[0] = currentLoc[0] + 1;
+            }
+            if (mode == 4) {
+                currentLoc[1] = currentLoc[1] - 1;
+            }
+        }
+        return rowLength;
+    }
+
+    private void checkPossibleWinOrDraw(int latestMoveRow, int latestMoveColumn) {
         int emptySlots = 0;
         for (int row = 0; row < gameBoard.length; row++) {
             for (int column = 0; column < gameBoard.length; column++) {
@@ -56,6 +108,15 @@ public class Game extends JFrame {
         if (emptySlots == 0) {
             this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
             System.out.println("Draw Game!");
+        } else {
+            String mark = playerXTurn ? X : O;
+            for (int i = 1; i <= 4; i++) {
+                if (getSameMarkRowLength(latestMoveRow, latestMoveColumn, mark, i) >= winRowLength) {
+                    this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+                    System.out.println((playerXTurn ? "Player" : "PC") + " won the game!");
+                    isGameOn = false;
+                }
+            }
         }
     }
 
