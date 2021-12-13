@@ -1,11 +1,12 @@
 # TicTacToe game project
 
 AUTHOR
-    Aleksi Lahtinen
+- Aleksi Lahtinen
 
 TO COMPILE AND RUN
-    cd src/
-    javac *.java
-    java TicTacToe
+-   cd src/
+-   javac *.java
+-   java TicTacToe
 
 SCREENCAST OF THE PROJECT WORK
+-
