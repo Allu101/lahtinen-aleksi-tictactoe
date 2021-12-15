@@ -1,5 +1,8 @@
 import java.lang.Math;
 
+/**
+ * The class RandomAiOpponent uses a Math.random() to make moves.
+ */
 public class RandomAiOpponent implements TicTacToePlayer {
 
     private int boardSize;
@@ -8,6 +11,11 @@ public class RandomAiOpponent implements TicTacToePlayer {
 
     private Game game;
 
+    /**
+     * Created opponent to TicTacToe
+     * @param gameBoard Game board array
+     * @param game The game class
+     */
     public RandomAiOpponent(String[][] gameBoard, Game game) {
         this.gameBoard = gameBoard;
         this.game = game;
@@ -16,6 +24,9 @@ public class RandomAiOpponent implements TicTacToePlayer {
         recreateFreeSlotsList();
     }
 
+    /**
+     * This method calculates free slots count.
+     */
     @Override
     public void onPlayerTurnEnd(int latestChangedRow, int latestChangedColumn) {
         if (freeSlots.length <= 1) {
@@ -32,12 +43,18 @@ public class RandomAiOpponent implements TicTacToePlayer {
         recreateFreeSlotsList();
     }
 
+    /**
+     * Select a random free button and "clicks" it.
+     */
     @Override
     public void play() {
         int randomSlot = (int) (Math.random() * freeSlots.length);
         game.handleClick(freeSlots[randomSlot]);
     }
 
+    /**
+     * This method recalcucate free slots on gameboard and adds it to array.
+     */
     private void recreateFreeSlotsList() {
         int index = 0;
         for (int row = 0; row < gameBoard.length; row++) {
