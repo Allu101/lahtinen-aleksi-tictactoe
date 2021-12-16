@@ -18,6 +18,7 @@ public class Game extends JFrame {
     private boolean isGameOn = true;
     private boolean playerXTurn = true;
     private int boardSize;
+    private int difficulty;
     private int winRowLength;
     private JButton[] buttons;
     private String[][] gameBoard;
@@ -30,7 +31,7 @@ public class Game extends JFrame {
     public Game() {
         initialGame();
         initialJFrame();
-        opponent = new RandomAiOpponent(gameBoard, this);
+        opponent = difficulty == 2 ? new ProAiOpponent(gameBoard, this, winRowLength) :  new RandomAiOpponent(gameBoard, this);
     }
 
     /**
@@ -100,7 +101,6 @@ public class Game extends JFrame {
      * @param mode Direction of the line to be checked (1 = Horizontal, 2 = Vectical, 3, Diagonal \, 4 = Diagonal /).
      * @return max same mark row lenght of given direction.
      */
-
     private int getSameMarkRowLength(int latestTurnRow, int latestTurnColumn, String mark, int mode) {
         int rowLength = 0;
         int startRow = mode > 2 ? latestTurnRow : latestTurnRow - winRowLength + 1 < 0 ? 0
@@ -182,6 +182,7 @@ public class Game extends JFrame {
         boardSize = getUserInput("Give a game board size: ", 3, 15);
         gameBoard = new String[boardSize][boardSize];
         winRowLength = getUserInput("How much marks must be a row to win?: ", boardSize >= 10 ? 5 : 3, boardSize);
+        difficulty = getUserInput("Select difficulty (1 = Easy, 2 = hard)", 1, 2);
     }
 
     /**
