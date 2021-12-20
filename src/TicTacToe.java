@@ -18,4 +18,25 @@ public class TicTacToe {
     public static int getSlotNumber(int boardSize, int row, int column) {
         return row * boardSize + column;
     }
+
+    /**
+     * Move and return target location.
+     * @param currentLoc Move start location
+     * @param amount move amount (slots)
+     * @param mode Direction of the move (1 = Horizontal >, 2 = Vectical v, 3, Diagonal \, 4 = Diagonal /).
+     * @return Target location
+     */
+    public static int[] movePointer(int[] currentLoc, int amount, int mode) {
+        int[] newLoc = new int[]{currentLoc[0], currentLoc[1]};
+        if (mode == 1 || mode == 3) {
+            newLoc[1] = currentLoc[1] + amount;
+        }
+        if (mode == 2 || mode == 3 || mode == 4) {
+            newLoc[0] = currentLoc[0] + amount;
+        }
+        if (mode == 4) {
+            newLoc[1] = currentLoc[1] - amount;
+        }
+        return newLoc;
+    }
 }

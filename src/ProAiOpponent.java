@@ -5,9 +5,11 @@ import java.lang.Math;
  */
 public class ProAiOpponent implements TicTacToePlayer {
 
+    private boolean isMeTurn = false;
     private int boardSize;
     private int winRowLength;
-    private int[] freeSlots = new int[boardSize*boardSize];
+    private int[] nextTurnSlot;
+    private String mark;
     private String[][] gameBoard;
 
     private Game game;
@@ -16,59 +18,68 @@ public class ProAiOpponent implements TicTacToePlayer {
      * Created opponent to TicTacToe
      * @param gameBoard Game board array
      * @param game The game class
+     * @param mark This player game mark
      */
-    public ProAiOpponent(String[][] gameBoard, Game game, int winRowLength) {
+    public ProAiOpponent(String[][] gameBoard, Game game, int winRowLength, String mark) {
         this.gameBoard = gameBoard;
         this.game = game;
         this.winRowLength = winRowLength;
+        this.mark = mark;
         this.boardSize = gameBoard.length;
-        freeSlots = new int[boardSize*boardSize];
-        recreateFreeSlotsList();
+        nextTurnSlot = new int[2];
     }
 
     /**
-     * This method calculates free slots count.
+     * This method read and save slots where oppnent can prevent a player from winning.
      */
     @Override
-    public void onPlayerTurnEnd(int latestChangedRow, int latestChangedColumn) {
-        if (freeSlots.length <= 1) {
-            return;
-        }
-        int tempIndex = 0;
-        int[] tempFreeSlots = new int[freeSlots.length - 1];
-        for (int i = 0; i < freeSlots.length; i++) {
-            if (TicTacToe.getSlotNumber(boardSize, latestChangedRow, latestChangedColumn) != i) {
-                tempFreeSlots[tempIndex] = freeSlots[i];
+    public void onPlayerTurnEnd(int latestTurnRow, int latestTurnColumn) {
+        gameBoard[latestTurnRow][latestTurnColumn] = isMeTurn ? game.O : game.X;
+        if (!isMeTurn) {
+            int longestRow = 0;
+            int[] potentialNextTurn = new int[2];
+            for (int i = 1; i <= 4; i++) {
+                int[][] array = getSameMarkRowStartAndEndLoc(latestTurnRow, latestTurnColumn, i);
+                for (int j = 0; j <= 1; j++) {
+                    if (array[2][j] >= longestRow && array[j][0] >= 0 && array[j][1] >= 0
+                                && array[j][0] < gameBoard.length && array[j][1] < gameBoard.length) {
+                        if (gameBoard[array[j][0]][array[j][1]].isBlank()) {
+                            longestRow = array[2][j];
+                            potentialNextTurn = array[j];
+                        }
+                    }
+                }
             }
+            nextTurnSlot = potentialNextTurn;
         }
-        freeSlots = tempFreeSlots;
-        recreateFreeSlotsList();
+        isMeTurn = !isMeTurn;
     }
 
     /**
-     * Select a random free button and "clicks" it.
+     * Select a nextTurnSlots button and "clicks" it.
      */
     @Override
     public void play() {
-        int randomSlot = (int) (Math.random() * freeSlots.length);
-        game.handleClick(freeSlots[randomSlot]);
+        game.handleClick(TicTacToe.getSlotNumber(boardSize, nextTurnSlot[0], nextTurnSlot[1]));
     }
 
     /**
-     * Calcucate and return max same mark row lenght of given direction.
+     * Calcucate and return array that contains start and end location row and column numbers.
      * @param latestTurnRow Middlepoint row of the line to be checked
      * @param latestTurnColumn Middlepoint column of the line to be checked
-     * @param mark Current player.
      * @param mode Direction of the line to be checked (1 = Horizontal, 2 = Vectical, 3, Diagonal \, 4 = Diagonal /).
-     * @return max same mark row lenght of given direction.
+     * @return Array that contains start and end location row and column numbers
      */
-    private int getSameMarkRowLength(int latestTurnRow, int latestTurnColumn, String mark, int mode) {
-        int rowLength = 0;
-        int startRow = mode > 2 ? latestTurnRow : latestTurnRow - winRowLength + 1 < 0 ? 0
-            : latestTurnRow - winRowLength + 1;
-        int startColumn = mode > 2 ? latestTurnColumn : latestTurnColumn - winRowLength + 1 < 0 ? 0
-            : latestTurnColumn - winRowLength + 1;
-        int endIndex = winRowLength * 2 - 1;
+    private int[][] getSameMarkRowStartAndEndLoc(int latestTurnRow, int latestTurnColumn, int mode) {
+        int[][] data = new int[][]{{-1, -1}, {-1, -1}, { -1, -1}};
+        int longestRowLenght = 0;
+        int currentRowLength = 0;
+
+        int startRow = mode > 2 ? latestTurnRow : latestTurnRow - winRowLength < 0 ? 0
+            : latestTurnRow - winRowLength;
+        int startColumn = mode > 2 ? latestTurnColumn : latestTurnColumn - winRowLength < 0 ? 0
+            : latestTurnColumn - winRowLength;
+        int endIndex = winRowLength * 2 + 1;
         int[] currentLoc = new int[]{startRow, startColumn};
 
         while (mode == 3 && currentLoc[0] -1 >= 0 && currentLoc[1] -1 >= 0) {
@@ -89,41 +100,26 @@ public class ProAiOpponent implements TicTacToePlayer {
             if ((currentLoc[0] >= boardSize || currentLoc[1] >= boardSize) || currentLoc[0] < 0 || currentLoc[1] < 0) {
                 break;
             }
-            if (gameBoard[currentLoc[0]][currentLoc[1]] == null || !gameBoard[currentLoc[0]][currentLoc[1]].equals(mark)) {
-                rowLength = 0;
+            if (gameBoard[currentLoc[0]][currentLoc[1]].isBlank() || gameBoard[currentLoc[0]][currentLoc[1]].equals(mark)) {
+                if (currentRowLength >= longestRowLenght) {
+                    if (longestRowLenght >= winRowLength - 2 ) {
+                        data[2][1] = currentRowLength;
+                        data[2][0] = currentRowLength;
+                        data[1][0] = currentLoc[0];
+                        data[1][1] = currentLoc[1];
+                        data[0] = TicTacToe.movePointer(data[1], -currentRowLength-1, mode);
+                    }
+                } else {
+                    data[0][0] = currentLoc[0];
+                    data[0][1] = currentLoc[1];
+                }
+                currentRowLength = 0;
             } else {
-                rowLength++;
-                if (rowLength >= winRowLength) {
-                    return rowLength;
-                }
+                currentRowLength++;
+                longestRowLenght = currentRowLength >= longestRowLenght ? currentRowLength : longestRowLenght;
             }
-            if (mode == 1 || mode == 3) {
-                currentLoc[1] = currentLoc[1] + 1;
-            }
-            if (mode == 2 || mode == 3 || mode == 4) {
-                currentLoc[0] = currentLoc[0] + 1;
-            }
-            if (mode == 4) {
-                currentLoc[1] = currentLoc[1] - 1;
-            }
+            currentLoc = TicTacToe.movePointer(currentLoc, 1, mode);
         }
-        return rowLength;
+        return data;
     }
-
-    /**
-     * This method recalcucate free slots on gameboard and adds it to array.
-     */
-    private void recreateFreeSlotsList() {
-        int index = 0;
-        for (int row = 0; row < gameBoard.length; row++) {
-            for (int column = 0; column < gameBoard.length; column++) {
-                if (gameBoard[row][column] == null) {
-                    int slotNumber  = TicTacToe.getSlotNumber(boardSize, row, column);
-                    freeSlots[index] = slotNumber;
-                    index++;
-                }
-            }
-        }
-    }
-
 }

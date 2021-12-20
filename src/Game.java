@@ -12,8 +12,8 @@ import javax.swing.JFrame;
  */
 public class Game extends JFrame {
     
-    private final static String O  = "0";
-    private final static String X  = "X";
+    public final String O  = "0";
+    public final String X  = "X";
 
     private boolean isGameOn = true;
     private boolean playerXTurn = true;
@@ -31,7 +31,7 @@ public class Game extends JFrame {
     public Game() {
         initialGame();
         initialJFrame();
-        opponent = difficulty == 2 ? new ProAiOpponent(gameBoard, this, winRowLength) :  new RandomAiOpponent(gameBoard, this);
+        opponent = difficulty == 2 ? new ProAiOpponent(gameBoard, this, winRowLength, O) :  new RandomAiOpponent(gameBoard, this);
     }
 
     /**
@@ -73,7 +73,7 @@ public class Game extends JFrame {
         int emptySlots = 0;
         for (int row = 0; row < gameBoard.length; row++) {
             for (int column = 0; column < gameBoard.length; column++) {
-                if (gameBoard[row][column] == null) {
+                if (gameBoard[row][column].isBlank()) {
                     emptySlots++;
                 }
             }
@@ -128,7 +128,7 @@ public class Game extends JFrame {
             if ((currentLoc[0] >= boardSize || currentLoc[1] >= boardSize) || currentLoc[0] < 0 || currentLoc[1] < 0) {
                 break;
             }
-            if (gameBoard[currentLoc[0]][currentLoc[1]] == null || !gameBoard[currentLoc[0]][currentLoc[1]].equals(mark)) {
+            if (!gameBoard[currentLoc[0]][currentLoc[1]].equals(mark)) {
                 rowLength = 0;
             } else {
                 rowLength++;
@@ -136,15 +136,7 @@ public class Game extends JFrame {
                     return rowLength;
                 }
             }
-            if (mode == 1 || mode == 3) {
-                currentLoc[1] = currentLoc[1] + 1;
-            }
-            if (mode == 2 || mode == 3 || mode == 4) {
-                currentLoc[0] = currentLoc[0] + 1;
-            }
-            if (mode == 4) {
-                currentLoc[1] = currentLoc[1] - 1;
-            }
+            currentLoc = TicTacToe.movePointer(currentLoc, 1, mode);
         }
         return rowLength;
     }
@@ -176,13 +168,18 @@ public class Game extends JFrame {
     }
 
     /**
-     * This method ask board size and winrow lenght from user and create 2d array.
+     * This method ask board size and winrow lenght from user and create gameboard (2d array).
      */
     private void initialGame() {
         boardSize = getUserInput("Give a game board size: ", 3, 15);
         gameBoard = new String[boardSize][boardSize];
         winRowLength = getUserInput("How much marks must be a row to win?: ", boardSize >= 10 ? 5 : 3, boardSize);
-        difficulty = getUserInput("Select difficulty (1 = Easy, 2 = hard)", 1, 2);
+        difficulty = getUserInput("Select difficulty (1 = Easy, 2 = hard): ", 1, 2);
+        for (int i = 0; i < gameBoard.length; i++) {
+            for (int j = 0; j < gameBoard.length; j++) {
+                gameBoard[i][j] = "";
+            }
+        }
     }
 
     /**
