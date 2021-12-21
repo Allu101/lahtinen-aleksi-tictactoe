@@ -1,7 +1,7 @@
 /**
  * The class ProAiOpponent uses a same logic than win check to make moves.
  */
-public class ProAiOpponent implements TicTacToePlayer {
+public class HardOpponent implements TicTacToePlayer {
 
     private boolean isMeTurn = false;
     private int boardSize;
@@ -19,7 +19,7 @@ public class ProAiOpponent implements TicTacToePlayer {
      * @param game The game class
      * @param mark This player game mark
      */
-    public ProAiOpponent(String[][] gameBoard, Game game, int winRowLength, String mark) {
+    public HardOpponent(String[][] gameBoard, Game game, int winRowLength, String mark) {
         this.gameBoard = gameBoard;
         this.game = game;
         this.winRowLength = winRowLength;
