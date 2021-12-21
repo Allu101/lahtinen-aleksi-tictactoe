@@ -3,10 +3,10 @@ import java.lang.Math;
 /**
  * The class RandomAiOpponent uses a Math.random() to make moves.
  */
-public class RandomAiOpponent implements TicTacToePlayer {
+public class EasyOpponent implements TicTacToePlayer {
 
     private int boardSize;
-    private int[] freeSlots = new int[boardSize*boardSize];
+    private int[] freeSlots;
     private String[][] gameBoard;
 
     private Game game;
@@ -16,7 +16,7 @@ public class RandomAiOpponent implements TicTacToePlayer {
      * @param gameBoard Game board array
      * @param game The game class
      */
-    public RandomAiOpponent(String[][] gameBoard, Game game) {
+    public EasyOpponent(String[][] gameBoard, Game game) {
         this.gameBoard = gameBoard;
         this.game = game;
         this.boardSize = gameBoard.length;
@@ -59,7 +59,7 @@ public class RandomAiOpponent implements TicTacToePlayer {
         int index = 0;
         for (int row = 0; row < gameBoard.length; row++) {
             for (int column = 0; column < gameBoard.length; column++) {
-                if (gameBoard[row][column] == null) {
+                if (gameBoard[row][column].isBlank()) {
                     int slotNumber  = TicTacToe.getSlotNumber(boardSize, row, column);
                     freeSlots[index] = slotNumber;
                     index++;
