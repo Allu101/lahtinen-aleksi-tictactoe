@@ -31,7 +31,7 @@ public class Game extends JFrame {
     public Game() {
         initialGame();
         initialJFrame();
-        opponent = difficulty == 2 ? new ProAiOpponent(gameBoard, this, winRowLength, O) :  new RandomAiOpponent(gameBoard, this);
+        opponent = difficulty == 2 ? new HardOpponent(gameBoard, this, winRowLength, O) :  new RandomAiOpponent(gameBoard, this);
     }
 
     /**
