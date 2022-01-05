@@ -31,7 +31,6 @@ public class Game extends JFrame {
     public Game() {
         initialGame();
         initialJFrame();
-        opponent = difficulty == 2 ? new HardOpponent(gameBoard, this, winRowLength, O) :  new EasyOpponent(gameBoard, this);
     }
 
     /**
@@ -81,6 +80,7 @@ public class Game extends JFrame {
         if (emptySlots == 0) {
             this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
             System.out.println("Draw Game!");
+            isGameOn = false;
         } else {
             String mark = playerXTurn ? X : O;
             for (int i = 1; i <= 4; i++) {
@@ -180,6 +180,7 @@ public class Game extends JFrame {
                 gameBoard[i][j] = "";
             }
         }
+        opponent = difficulty == 2 ? new HardOpponent(gameBoard, this, winRowLength, O) :  new EasyOpponent(gameBoard, this);
     }
 
     /**

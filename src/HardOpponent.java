@@ -7,7 +7,6 @@ public class HardOpponent implements TicTacToePlayer {
     private int boardSize;
     private int winRowLength;
     private int[] nextTurnSlot;
-    private int[] potentialNextTurns;
     private String mark;
     private String[][] gameBoard;
 
