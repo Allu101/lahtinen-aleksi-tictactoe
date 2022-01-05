@@ -32,11 +32,13 @@ public class EasyOpponent implements TicTacToePlayer {
         if (freeSlots.length <= 1) {
             return;
         }
+        int lastTurnSlot = TicTacToe.getSlotNumber(boardSize, latestChangedRow, latestChangedColumn);
         int tempIndex = 0;
         int[] tempFreeSlots = new int[freeSlots.length - 1];
         for (int i = 0; i < freeSlots.length; i++) {
-            if (TicTacToe.getSlotNumber(boardSize, latestChangedRow, latestChangedColumn) != i) {
+            if (lastTurnSlot != freeSlots[i]) {
                 tempFreeSlots[tempIndex] = freeSlots[i];
+                tempIndex++;
             }
         }
         freeSlots = tempFreeSlots;
